@@ -7,6 +7,7 @@
 package com.truthsystems;
 
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import com.truthsystems.registry.*;
 
@@ -14,8 +15,9 @@ import com.truthsystems.registry.*;
 public class TruthSystems {
     public static final String MODID = "truthsystems";
 
-    public TruthSystems() {
-        var bus = FMLJavaModLoadingContext.get().getModEventBus();
+    @SuppressWarnings("removal")
+    public TruthSystems(FMLJavaModLoadingContext context) {
+        IEventBus bus = context.getModEventBus();
         ModBlocks.REGISTER.register(bus);
         ModItems.REGISTER.register(bus);
         ModBlockEntities.REGISTER.register(bus);

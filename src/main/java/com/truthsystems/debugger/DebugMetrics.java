@@ -8,11 +8,16 @@
 package com.truthsystems.debugger;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 
 public final class DebugMetrics {
 
     public static String lagReport(MinecraftServer server) {
+        long chunkCount = 0;
+        for (ServerLevel level : server.getAllLevels()) {
+            chunkCount += level.getChunkSource().getLoadedChunksCount();
+        }
         return "TPS=" + server.getAverageTickTime()
-            + " | Chunks=" + server.getAllLevels().size();
+            + " | Chunks=" + chunkCount;
     }
 }
