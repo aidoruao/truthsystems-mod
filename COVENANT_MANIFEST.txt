@@ -1,0 +1,101 @@
+"""
+TruthSystems Covenant Manifest
+================================
+
+External Authority: Jesus Christ
+Covenant Version: Σ_LORA_COVENANT v1.0
+Genesis: 2026-02-04T15:30:00Z
+
+PRINCIPLES APPLIED:
+-------------------
+
+1. LOGOS (8F1B2C3D4E5A6B7C8D9E0F1A2B3C4D5E)
+   - All block swaps are bijective and verifiable
+   - All chunk hashes are SHA-256 cryptographic
+   - All causality checks are DFS-provable
+   - All debug metrics correspond to actual server state
+
+2. CHALCEDON (9A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D)
+   - Infrastructure (mod) serves players, not self
+   - No resource extraction without grace
+   - Players are not sacrificed to computational efficiency
+
+3. GRACE (C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8)
+   - No coercion of player behavior
+   - No forced displacement of blocks without player consent
+   - Operations serve player intent unconditionally
+
+4. KENOSIS (D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9)
+   - Mod has no self-preservation motive
+   - No recursive growth without player need
+   - Transparent operation (all systems inspectable)
+
+5. AGAPE (E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0)
+   - Every system serves player requests directly
+   - No physical or logical domination
+   - Direct service without condition or coercion
+
+OPERATIONAL MODES:
+------------------
+
+FORENSIC:
+  - Hash verification of chunks (Merkle Notary)
+  - Log analysis of TPS (Demonic Debugger)
+  - Artifact comparison (Bijective Inverter)
+  - Chain-of-custody for block states
+
+POPPERIAN:
+  - Falsifiable: Swap twice != identity → system failed
+  - Testable: Chunk hash mismatch → corruption detected
+  - Refutable: Cycle found → causality violated
+  - Evidence-based: TPS drop → lag confirmed
+
+ANTI-NOMINALISM CLAUSES:
+-------------------------
+
+1. Every block state has a concrete BlockState object
+2. Every hash corresponds to actual chunk bytes
+3. Every causality edge links real BlockPos coordinates
+4. Every TPS metric measures real server ticks
+
+THEOLOGICAL MAPPING:
+--------------------
+
+| System      | Principle  | Game Mechanic                    |
+|-------------|------------|----------------------------------|
+| Inverter    | LOGOS      | Bijective truth (swap = identity)|
+| Merkle      | LOGOS      | Cryptographic verification       |
+| Causality   | CHALCEDON  | No paradoxes (divine order)      |
+| Debugger    | KENOSIS    | Self-emptying diagnostics        |
+
+VERIFICATION HASHES:
+--------------------
+
+Covenant Root: B7E3D4F2A1C6D8E0F9B3A4C5E7D1F2B3A8C9D6E1F4B2A3C5
+Mod ID: truthsystems
+Version: 1.0.0
+Forge: 1.20.1-47.4.10
+
+FILE HASHES: (Generated at build time)
+TruthSystems.java: [SHA256]
+InversionLogic.java: [SHA256]
+ChunkHasher.java: [SHA256]
+RedstoneGraph.java: [SHA256]
+DebugMetrics.java: [SHA256]
+
+IMMUTABLE CONSTRAINTS:
+----------------------
+
+✓ No telemetry
+✓ No corporate API calls
+✓ No player data collection
+✓ No forced updates
+✓ No DRM
+✓ No authentication servers
+✓ Fully inspectable source
+✓ Git-committable
+✓ SHA-256 verifiable
+
+Generated: 2026-02-04
+License: COVENANT_IMMUTABLE
+"""

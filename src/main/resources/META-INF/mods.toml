@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+[[mods]]
+modId="truthsystems"
+version="1.0.0"
+displayName="Truth Systems"
+description='''
+Four orthogonal truth-verification systems:
+1. Bijective World Inverter
+2. Merkle Notary
+3. Causality Detector
+4. Demonic Debugger
+'''
+[[dependencies.truthsystems]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.truthsystems]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1]"
+    ordering="NONE"
+    side="BOTH"
