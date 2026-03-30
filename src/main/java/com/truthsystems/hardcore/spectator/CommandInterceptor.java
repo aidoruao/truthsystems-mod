@@ -42,8 +42,13 @@ public class CommandInterceptor {
         if (!SpectatorLockHandler.isLocked(player.getStringUUID())) return;
 
         String input = event.getParseResults().getReader().getString().toLowerCase();
+        // Strip leading slash if present
+        String cmd = input.startsWith("/") ? input.substring(1) : input;
+        // Extract the command name (first word only)
+        int spaceIdx = cmd.indexOf(' ');
+        String cmdName = spaceIdx >= 0 ? cmd.substring(0, spaceIdx) : cmd;
         for (String blocked : BLOCKED_COMMANDS) {
-            if (input.startsWith("/" + blocked) || input.startsWith(blocked)) {
+            if (cmdName.equals(blocked)) {
                 event.setCanceled(true);
                 player.displayClientMessage(
                         Component.literal("[HIK] Command blocked: death seal is active."), false);

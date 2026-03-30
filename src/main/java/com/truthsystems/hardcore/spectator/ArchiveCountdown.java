@@ -13,8 +13,8 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -94,7 +94,7 @@ public class ArchiveCountdown {
         if (event.phase != TickEvent.Phase.END) return;
 
         // Iterate over a snapshot to avoid ConcurrentModificationException
-        for (String uuid : new ArrayList<>(countdownEndTimes.keySet())) {
+        for (String uuid : List.copyOf(countdownEndTimes.keySet())) {
             if (isExpired(uuid)) {
                 String worldName = countdownWorldNames.getOrDefault(uuid, "unknown");
                 checkAndArchive(uuid, worldName);

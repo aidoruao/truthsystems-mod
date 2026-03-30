@@ -43,6 +43,20 @@ public class DeathLogEntry {
         this.locked = locked;
     }
 
+    /**
+     * Factory method that creates a new sealed entry with the checksum pre-computed.
+     * Prefer this over calling {@code computeChecksum()} manually.
+     */
+    public static DeathLogEntry createSealed(String playerUuid, String playerName,
+                                             String worldName, long deathTimestamp,
+                                             String deathCause, String sessionId) {
+        DeathLogEntry entry = new DeathLogEntry(
+                playerUuid, playerName, worldName,
+                deathTimestamp, deathCause, sessionId, "", true);
+        entry.computeChecksum();
+        return entry;
+    }
+
     // ---- Getters ----------------------------------------------------------------
 
     public String getPlayerUuid() { return playerUuid; }
@@ -96,7 +110,7 @@ public class DeathLogEntry {
             return hex.toString();
         } catch (NoSuchAlgorithmException e) {
             // SHA-256 is always available on Java 17
-            return "CHECKSUM_ERROR";
+            throw new IllegalStateException("SHA-256 not available", e);
         }
     }
 }

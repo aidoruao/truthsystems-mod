@@ -38,7 +38,8 @@ public class LanMenuMixin {
                 .map(w -> (AbstractWidget) w)
                 .filter(btn -> {
                     String msg = btn.getMessage().getString().toLowerCase();
-                    return msg.contains("cheat") || msg.contains("allow");
+                    // Require both keywords to avoid disabling unrelated buttons
+                    return msg.contains("cheat") || (msg.contains("allow") && msg.contains("cheat"));
                 })
                 .forEach(btn -> btn.active = false);
     }

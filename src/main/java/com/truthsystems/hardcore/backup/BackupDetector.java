@@ -42,6 +42,7 @@ public class BackupDetector {
 
     private static final String CONTINUITY_FILE = "hik_continuity.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final int TICK_CHECK_INTERVAL = 600;
     private static final Map<String, Long> lastTickMap = new HashMap<>();
 
     private BackupDetector() {}
@@ -56,7 +57,7 @@ public class BackupDetector {
         if (!serverLevel.getLevelData().isHardcore()) return;
 
         long gameTick = serverLevel.getGameTime();
-        if (gameTick % 600 != 0) return;
+        if (gameTick % TICK_CHECK_INTERVAL != 0) return;
 
         MinecraftServer server = serverLevel.getServer();
         Path worldDir = server.getWorldPath(LevelResource.ROOT).toAbsolutePath();

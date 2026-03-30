@@ -30,6 +30,7 @@ public class CheatFlagWatcher {
 
     private static boolean lastCheatsState = false;
     private static int tickCounter = 0;
+    private static final int CHEAT_CHECK_INTERVAL_TICKS = 100;
 
     private CheatFlagWatcher() {}
 
@@ -47,7 +48,7 @@ public class CheatFlagWatcher {
         if (event.phase != TickEvent.Phase.END) return;
 
         tickCounter++;
-        if (tickCounter < 100) return;
+        if (tickCounter < CHEAT_CHECK_INTERVAL_TICKS) return;
         tickCounter = 0;
 
         MinecraftServer server = event.getServer();

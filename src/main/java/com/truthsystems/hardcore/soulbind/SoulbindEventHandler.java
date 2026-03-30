@@ -46,10 +46,9 @@ public class SoulbindEventHandler {
         String cause = event.getSource().getLocalizedDeathMessage(player).getString();
         String sessionId = SessionIdManager.getOrCreateSessionId(worldDir, worldName);
 
-        DeathLogEntry entry = new DeathLogEntry(
+        DeathLogEntry entry = DeathLogEntry.createSealed(
                 uuid, name, worldName,
-                System.currentTimeMillis(), cause, sessionId, "", true);
-        entry.computeChecksum();
+                System.currentTimeMillis(), cause, sessionId);
 
         DeathSealManager.sealDeath(worldDir, entry);
         DeathSealManager.setWorldIntegrity(worldName, IntegrityFlag.CLEAN);
