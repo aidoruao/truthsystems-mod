@@ -24,3 +24,5 @@ Four orthogonal truth-verification systems:
     versionRange="[1.20.1]"
     ordering="NONE"
     side="BOTH"
+[[mixins]]
+    config="truthsystems.mixins.json"

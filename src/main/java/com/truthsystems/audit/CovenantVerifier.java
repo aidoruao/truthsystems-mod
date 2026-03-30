@@ -7,6 +7,12 @@
  */
 package com.truthsystems.audit;
 
+import com.truthsystems.hardcore.backup.BackupDetector;
+import com.truthsystems.hardcore.integrity.WorldChecksumValidator;
+import com.truthsystems.hardcore.soulbind.DeathLogEntry;
+import com.truthsystems.hardcore.soulbind.DeathSealManager;
+import com.truthsystems.hardcore.soulbind.IntegrityFlag;
+import com.truthsystems.hardcore.spectator.SpectatorLockHandler;
 import net.minecraft.world.level.Level;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -259,5 +265,96 @@ public class CovenantVerifier {
     
     private static boolean isWithinRadius(BlockPos target, BlockPos center, int radius) {
         return target.distSqr(center) <= radius * radius;
+    }
+
+    // ============================================================
+    // HIK VERIFICATION METHODS (PRINCIPLE: LOGOS + CHALCEDON)
+    // ============================================================
+
+    /**
+     * Verify death seal integrity for a player in a Hardcore world.
+     *
+     * @param worldDir path to the world directory
+     * @param playerUuid player UUID string
+     * @param worldName world name for integrity map
+     * @return true if death seal exists and checksum is valid
+     */
+    public static boolean verifyDeathSealIntegrity(
+            java.nio.file.Path worldDir, String playerUuid, String worldName) {
+        DeathLogEntry entry = DeathSealManager.loadSeal(worldDir, playerUuid);
+        if (entry == null) return false;
+        if (!entry.verifyChecksum()) {
+            DeathSealManager.markCompromised(worldName, IntegrityFlag.TAMPERED_DEATH_LOG);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Verify world file integrity (level.dat checksum).
+     *
+     * @param worldDir path to the world directory
+     * @param worldName world name for integrity map
+     * @return true if checksum matches
+     */
+    public static boolean verifyWorldFileIntegrity(
+            java.nio.file.Path worldDir, String worldName) {
+        return WorldChecksumValidator.validateChecksum(worldDir, worldName);
+    }
+
+    /**
+     * Verify session continuity (no rollback detected).
+     *
+     * @param worldDir path to the world directory
+     * @param worldName world name
+     * @param currentTick current game tick
+     * @return true if no rollback detected
+     */
+    public static boolean verifySessionContinuity(
+            java.nio.file.Path worldDir, String worldName, long currentTick) {
+        return !BackupDetector.detectRollback(worldDir, worldName, currentTick);
+    }
+
+    /**
+     * Verify spectator lock is properly enforced for a locked player.
+     *
+     * @param player the player to check
+     * @return true if the player is properly locked in spectator mode
+     */
+    public static boolean verifySpectatorLock(net.minecraft.server.level.ServerPlayer player) {
+        String uuid = player.getStringUUID();
+        boolean locked = SpectatorLockHandler.isLocked(uuid);
+        return verifySpectatorLockState(locked, player.gameMode.getGameModeForPlayer());
+    }
+
+    /**
+     * Testable verifier for spectator-lock state.
+     */
+    public static boolean verifySpectatorLockState(
+            boolean locked, net.minecraft.world.level.GameType currentGameType) {
+        if (!locked) {
+            return true;
+        }
+        return currentGameType == net.minecraft.world.level.GameType.SPECTATOR;
+    }
+
+    /**
+     * Verify that LAN cheats are blocked for Hardcore worlds.
+     *
+     * @param server the Minecraft server
+     * @return true if no cheat violation detected (cheats are not enabled on a hardcore world)
+     */
+    public static boolean verifyLanCheatBlocked(net.minecraft.server.MinecraftServer server) {
+        return verifyLanCheatBlockedState(
+            server.getWorldData().isHardcore(), server.getWorldData().getAllowCommands());
+    }
+
+    /**
+     * Testable verifier for Hardcore/LAN cheat state.
+     */
+    public static boolean verifyLanCheatBlockedState(
+            boolean hardcore, boolean allowCommands) {
+        if (!hardcore) return true;
+        return !allowCommands;
     }
 }

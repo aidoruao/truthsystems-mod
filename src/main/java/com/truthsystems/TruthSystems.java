@@ -6,14 +6,19 @@
  */
 package com.truthsystems;
 
+import com.mojang.logging.LogUtils;
+import com.truthsystems.hardcore.HikConfig;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.ModLoadingContext;
 import com.truthsystems.registry.*;
+import org.slf4j.Logger;
 
 @Mod(TruthSystems.MODID)
 public class TruthSystems {
     public static final String MODID = "truthsystems";
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     @SuppressWarnings("removal")
     public TruthSystems(FMLJavaModLoadingContext context) {
@@ -22,5 +27,14 @@ public class TruthSystems {
         ModItems.REGISTER.register(bus);
         ModBlockEntities.REGISTER.register(bus);
         ModEntities.REGISTER.register(bus);
+
+        // Register HIK configuration
+        ModLoadingContext.get().registerConfig(
+            net.minecraftforge.fml.config.ModConfig.Type.COMMON,
+            HikConfig.SPEC,
+            "truthsystems-hik.toml"
+        );
+        HikConfig.load();
+        LOGGER.info("[HIK] Hardcore Integrity Keeper initialized. Version: 1.1.0-part1");
     }
 }
