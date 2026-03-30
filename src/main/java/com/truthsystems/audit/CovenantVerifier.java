@@ -260,4 +260,83 @@ public class CovenantVerifier {
     private static boolean isWithinRadius(BlockPos target, BlockPos center, int radius) {
         return target.distSqr(center) <= radius * radius;
     }
+
+    // ============================================================
+    // HIK VERIFICATION METHODS (PRINCIPLE: LOGOS + CHALCEDON)
+    // ============================================================
+
+    /**
+     * Verify death seal integrity for a player in a Hardcore world.
+     *
+     * @param worldDir path to the world directory
+     * @param playerUuid player UUID string
+     * @param worldName world name for integrity map
+     * @return true if death seal exists and checksum is valid
+     */
+    public static boolean verifyDeathSealIntegrity(
+            java.nio.file.Path worldDir, String playerUuid, String worldName) {
+        com.truthsystems.hardcore.soulbind.DeathLogEntry entry =
+            com.truthsystems.hardcore.soulbind.DeathSealManager.loadSeal(worldDir, playerUuid);
+        if (entry == null) return false;
+        if (!entry.verifyChecksum()) {
+            com.truthsystems.hardcore.soulbind.DeathSealManager.markCompromised(
+                worldName, com.truthsystems.hardcore.soulbind.IntegrityFlag.TAMPERED_DEATH_LOG);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Verify world file integrity (level.dat checksum).
+     *
+     * @param worldDir path to the world directory
+     * @param worldName world name for integrity map
+     * @return true if checksum matches
+     */
+    public static boolean verifyWorldFileIntegrity(
+            java.nio.file.Path worldDir, String worldName) {
+        return com.truthsystems.hardcore.integrity.WorldChecksumValidator.validateChecksum(
+            worldDir, worldName);
+    }
+
+    /**
+     * Verify session continuity (no rollback detected).
+     *
+     * @param worldDir path to the world directory
+     * @param worldName world name
+     * @param currentTick current game tick
+     * @return true if no rollback detected
+     */
+    public static boolean verifySessionContinuity(
+            java.nio.file.Path worldDir, String worldName, long currentTick) {
+        return !com.truthsystems.hardcore.backup.BackupDetector.detectRollback(
+            worldDir, worldName, currentTick);
+    }
+
+    /**
+     * Verify spectator lock is properly enforced for a locked player.
+     *
+     * @param player the player to check
+     * @return true if the player is properly locked in spectator mode
+     */
+    public static boolean verifySpectatorLock(net.minecraft.server.level.ServerPlayer player) {
+        String uuid = player.getStringUUID();
+        if (!com.truthsystems.hardcore.spectator.SpectatorLockHandler.isLocked(uuid)) {
+            return true; // Not locked, no enforcement needed
+        }
+        return player.gameMode.getGameModeForPlayer() == net.minecraft.world.level.GameType.SPECTATOR;
+    }
+
+    /**
+     * Verify that LAN cheats are blocked for Hardcore worlds.
+     *
+     * @param server the Minecraft server
+     * @return true if no cheat violation detected (cheats are not enabled on a hardcore world)
+     */
+    public static boolean verifyLanCheatBlocked(net.minecraft.server.MinecraftServer server) {
+        if (!server.getWorldData().isHardcore()) return true;
+        if (!server.getWorldData().getAllowCommands()) return true;
+        // Cheats are enabled on a hardcore world - this is a violation
+        return false;
+    }
 }

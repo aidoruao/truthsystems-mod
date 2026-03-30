@@ -9,6 +9,7 @@ package com.truthsystems;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.ModLoadingContext;
 import com.truthsystems.registry.*;
 
 @Mod(TruthSystems.MODID)
@@ -22,5 +23,12 @@ public class TruthSystems {
         ModItems.REGISTER.register(bus);
         ModBlockEntities.REGISTER.register(bus);
         ModEntities.REGISTER.register(bus);
+
+        // Register HIK configuration
+        ModLoadingContext.get().registerConfig(
+            net.minecraftforge.fml.config.ModConfig.Type.COMMON,
+            com.truthsystems.hardcore.HikConfig.SPEC,
+            "truthsystems-hik.toml"
+        );
     }
 }
