@@ -7,6 +7,12 @@
  */
 package com.truthsystems.audit;
 
+import com.truthsystems.hardcore.backup.BackupDetector;
+import com.truthsystems.hardcore.integrity.WorldChecksumValidator;
+import com.truthsystems.hardcore.soulbind.DeathLogEntry;
+import com.truthsystems.hardcore.soulbind.DeathSealManager;
+import com.truthsystems.hardcore.soulbind.IntegrityFlag;
+import com.truthsystems.hardcore.spectator.SpectatorLockHandler;
 import net.minecraft.world.level.Level;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -275,12 +281,10 @@ public class CovenantVerifier {
      */
     public static boolean verifyDeathSealIntegrity(
             java.nio.file.Path worldDir, String playerUuid, String worldName) {
-        com.truthsystems.hardcore.soulbind.DeathLogEntry entry =
-            com.truthsystems.hardcore.soulbind.DeathSealManager.loadSeal(worldDir, playerUuid);
+        DeathLogEntry entry = DeathSealManager.loadSeal(worldDir, playerUuid);
         if (entry == null) return false;
         if (!entry.verifyChecksum()) {
-            com.truthsystems.hardcore.soulbind.DeathSealManager.markCompromised(
-                worldName, com.truthsystems.hardcore.soulbind.IntegrityFlag.TAMPERED_DEATH_LOG);
+            DeathSealManager.markCompromised(worldName, IntegrityFlag.TAMPERED_DEATH_LOG);
             return false;
         }
         return true;
@@ -295,8 +299,7 @@ public class CovenantVerifier {
      */
     public static boolean verifyWorldFileIntegrity(
             java.nio.file.Path worldDir, String worldName) {
-        return com.truthsystems.hardcore.integrity.WorldChecksumValidator.validateChecksum(
-            worldDir, worldName);
+        return WorldChecksumValidator.validateChecksum(worldDir, worldName);
     }
 
     /**
@@ -309,8 +312,7 @@ public class CovenantVerifier {
      */
     public static boolean verifySessionContinuity(
             java.nio.file.Path worldDir, String worldName, long currentTick) {
-        return !com.truthsystems.hardcore.backup.BackupDetector.detectRollback(
-            worldDir, worldName, currentTick);
+        return !BackupDetector.detectRollback(worldDir, worldName, currentTick);
     }
 
     /**
@@ -321,10 +323,19 @@ public class CovenantVerifier {
      */
     public static boolean verifySpectatorLock(net.minecraft.server.level.ServerPlayer player) {
         String uuid = player.getStringUUID();
-        if (!com.truthsystems.hardcore.spectator.SpectatorLockHandler.isLocked(uuid)) {
-            return true; // Not locked, no enforcement needed
+        boolean locked = SpectatorLockHandler.isLocked(uuid);
+        return verifySpectatorLockState(locked, player.gameMode.getGameModeForPlayer());
+    }
+
+    /**
+     * Testable verifier for spectator-lock state.
+     */
+    public static boolean verifySpectatorLockState(
+            boolean locked, net.minecraft.world.level.GameType currentGameType) {
+        if (!locked) {
+            return true;
         }
-        return player.gameMode.getGameModeForPlayer() == net.minecraft.world.level.GameType.SPECTATOR;
+        return currentGameType == net.minecraft.world.level.GameType.SPECTATOR;
     }
 
     /**
@@ -334,9 +345,16 @@ public class CovenantVerifier {
      * @return true if no cheat violation detected (cheats are not enabled on a hardcore world)
      */
     public static boolean verifyLanCheatBlocked(net.minecraft.server.MinecraftServer server) {
-        if (!server.getWorldData().isHardcore()) return true;
-        if (!server.getWorldData().getAllowCommands()) return true;
-        // Cheats are enabled on a hardcore world - this is a violation
-        return false;
+        return verifyLanCheatBlockedState(
+            server.getWorldData().isHardcore(), server.getWorldData().getAllowCommands());
+    }
+
+    /**
+     * Testable verifier for Hardcore/LAN cheat state.
+     */
+    public static boolean verifyLanCheatBlockedState(
+            boolean hardcore, boolean allowCommands) {
+        if (!hardcore) return true;
+        return !allowCommands;
     }
 }

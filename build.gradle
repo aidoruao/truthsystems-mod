@@ -1,7 +1,19 @@
-plugins {
-    id 'java'
-    id 'net.minecraftforge.gradle' version '6.0.18'
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.18'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
 }
+
+apply plugin: 'java'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
 
 group = 'com.truthsystems'
 version = '1.0.0'
@@ -42,10 +54,25 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.10'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+    testImplementation 'org.mockito:mockito-core:5.8.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.8.0'
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+mixin {
+    add sourceSets.main, "truthsystems.mixins.refmap.json"
+    config "truthsystems.mixins.json"
+}
+
+test {
+    useJUnitPlatform()
 }
 
 jar {

@@ -46,7 +46,7 @@ public class DeathSealManager {
                 GSON.toJson(entry, writer);
             }
         } catch (IOException e) {
-            ErrorLogger.logError(ErrorLogger.ErrorType.MERKLE_MISMATCH,
+            ErrorLogger.logError(ErrorLogger.ErrorType.FILE_INTEGRITY_VIOLATION,
                     "HIK/DeathSealManager", "sealDeath_io_error", "", "");
             System.err.println("[HIK] Failed to seal death for " + entry.getPlayerUuid() + ": " + e.getMessage());
         }
@@ -106,8 +106,18 @@ public class DeathSealManager {
      */
     public static void markCompromised(String worldName, IntegrityFlag reason) {
         worldIntegrityMap.put(worldName, reason);
-        ErrorLogger.logError(ErrorLogger.ErrorType.MERKLE_MISMATCH,
+        ErrorLogger.logError(mapErrorType(reason),
                 "HIK/DeathSealManager", reason.name(), "", "");
         System.err.println("[HIK] World '" + worldName + "' marked " + reason.name());
+    }
+
+    static ErrorLogger.ErrorType mapErrorType(IntegrityFlag reason) {
+        return switch (reason) {
+            case TAMPERED_DEATH_LOG -> ErrorLogger.ErrorType.DEATH_SEAL_VIOLATION;
+            case TAMPERED_LEVEL_DAT -> ErrorLogger.ErrorType.FILE_INTEGRITY_VIOLATION;
+            case ROLLBACK_DETECTED -> ErrorLogger.ErrorType.BACKUP_VIOLATION;
+            case LAN_CHEAT_DETECTED -> ErrorLogger.ErrorType.LAN_CHEAT_VIOLATION;
+            default -> ErrorLogger.ErrorType.MERKLE_MISMATCH;
+        };
     }
 }

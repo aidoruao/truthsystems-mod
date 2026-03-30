@@ -11,6 +11,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.truthsystems.TruthSystems;
+import com.truthsystems.audit.CovenantVerifier;
+import com.truthsystems.audit.ErrorLogger;
 import com.truthsystems.hardcore.HikConfig;
 import com.truthsystems.hardcore.soulbind.DeathSealManager;
 import com.truthsystems.hardcore.soulbind.IntegrityFlag;
@@ -103,8 +105,15 @@ public class BackupDetector {
      * compromised. Then records the current tick.
      */
     public static void onWorldTick(Path worldDir, String worldName, long gameTick) {
-        if (detectRollback(worldDir, worldName, gameTick)) {
+        boolean continuityValid = CovenantVerifier.verifySessionContinuity(worldDir, worldName, gameTick);
+        if (!continuityValid) {
             DeathSealManager.markCompromised(worldName, IntegrityFlag.ROLLBACK_DETECTED);
+            ErrorLogger.logError(
+                    ErrorLogger.ErrorType.BACKUP_VIOLATION,
+                    TruthSystems.MODID,
+                    "session_continuity_verification_failed",
+                    "",
+                    "");
         }
         recordTick(worldDir, worldName, gameTick);
     }

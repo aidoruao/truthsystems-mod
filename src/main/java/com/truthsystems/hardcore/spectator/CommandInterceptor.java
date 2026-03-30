@@ -8,6 +8,8 @@
 package com.truthsystems.hardcore.spectator;
 
 import com.truthsystems.TruthSystems;
+import com.truthsystems.audit.CovenantVerifier;
+import com.truthsystems.audit.ErrorLogger;
 import com.truthsystems.hardcore.HikConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,6 +34,14 @@ public class CommandInterceptor {
 
     private CommandInterceptor() {}
 
+    public static boolean isBlockedCommand(String input) {
+        String normalized = input.toLowerCase();
+        String command = normalized.startsWith("/") ? normalized.substring(1) : normalized;
+        int spaceIdx = command.indexOf(' ');
+        String commandName = spaceIdx >= 0 ? command.substring(0, spaceIdx) : command;
+        return BLOCKED_COMMANDS.contains(commandName);
+    }
+
     @SubscribeEvent
     public static void onCommand(CommandEvent event) {
         if (!HikConfig.ENABLE_HIK.get()) return;
@@ -41,19 +51,19 @@ public class CommandInterceptor {
         if (!player.level().getLevelData().isHardcore()) return;
         if (!SpectatorLockHandler.isLocked(player.getStringUUID())) return;
 
-        String input = event.getParseResults().getReader().getString().toLowerCase();
-        // Strip leading slash if present
-        String cmd = input.startsWith("/") ? input.substring(1) : input;
-        // Extract the command name (first word only)
-        int spaceIdx = cmd.indexOf(' ');
-        String cmdName = spaceIdx >= 0 ? cmd.substring(0, spaceIdx) : cmd;
-        for (String blocked : BLOCKED_COMMANDS) {
-            if (cmdName.equals(blocked)) {
-                event.setCanceled(true);
-                player.displayClientMessage(
-                        Component.literal("[HIK] Command blocked: death seal is active."), false);
-                return;
+        String input = event.getParseResults().getReader().getString();
+        if (isBlockedCommand(input)) {
+            if (!CovenantVerifier.verifySpectatorLock(player)) {
+                ErrorLogger.logError(
+                        ErrorLogger.ErrorType.SPECTATOR_VIOLATION,
+                        TruthSystems.MODID,
+                        "spectator_lock_verification_failed",
+                        "",
+                        "");
             }
+            event.setCanceled(true);
+            player.displayClientMessage(
+                    Component.literal("[HIK] Command blocked: death seal is active."), false);
         }
     }
 }

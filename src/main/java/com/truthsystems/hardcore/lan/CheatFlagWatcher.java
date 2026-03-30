@@ -8,6 +8,8 @@
 package com.truthsystems.hardcore.lan;
 
 import com.truthsystems.TruthSystems;
+import com.truthsystems.audit.CovenantVerifier;
+import com.truthsystems.audit.ErrorLogger;
 import com.truthsystems.hardcore.HikConfig;
 import com.truthsystems.hardcore.soulbind.DeathSealManager;
 import com.truthsystems.hardcore.soulbind.IntegrityFlag;
@@ -16,6 +18,9 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Detects runtime cheat flag activation on Hardcore worlds.
@@ -28,7 +33,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = TruthSystems.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CheatFlagWatcher {
 
-    private static boolean lastCheatsState = false;
+    private static final Map<String, Boolean> lastCheatsStateByWorld = new HashMap<>();
     private static int tickCounter = 0;
     private static final int CHEAT_CHECK_INTERVAL_TICKS = 100;
 
@@ -39,7 +44,8 @@ public class CheatFlagWatcher {
         if (!HikConfig.ENABLE_HIK.get()) return;
         MinecraftServer server = event.getServer();
         if (!server.getWorldData().isHardcore()) return;
-        lastCheatsState = server.getWorldData().getAllowCommands();
+        String worldName = server.getWorldData().getLevelName();
+        lastCheatsStateByWorld.put(worldName, server.getWorldData().getAllowCommands());
     }
 
     @SubscribeEvent
@@ -55,11 +61,20 @@ public class CheatFlagWatcher {
         if (server == null || !server.getWorldData().isHardcore()) return;
         if (!HikConfig.COMPROMISE_ON_LAN_CHEATS.get()) return;
 
+        String worldName = server.getWorldData().getLevelName();
+        boolean lastCheatsState = lastCheatsStateByWorld.getOrDefault(worldName, false);
         boolean currentCheatsState = server.getWorldData().getAllowCommands();
         if (!lastCheatsState && currentCheatsState) {
-            String worldName = server.getWorldData().getLevelName();
             DeathSealManager.markCompromised(worldName, IntegrityFlag.LAN_CHEAT_DETECTED);
         }
-        lastCheatsState = currentCheatsState;
+        if (!CovenantVerifier.verifyLanCheatBlocked(server)) {
+            ErrorLogger.logError(
+                    ErrorLogger.ErrorType.LAN_CHEAT_VIOLATION,
+                    TruthSystems.MODID,
+                    "lan_cheat_verification_failed",
+                    "",
+                    "");
+        }
+        lastCheatsStateByWorld.put(worldName, currentCheatsState);
     }
 }

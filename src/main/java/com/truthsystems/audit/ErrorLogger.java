@@ -29,7 +29,13 @@ public class ErrorLogger {
         BIJECTIVE_VIOLATION,
         MERKLE_MISMATCH,
         CAUSALITY_LOOP,
-        DEBUGGER_ALERT
+        DEBUGGER_ALERT,
+        DEATH_SEAL_VIOLATION,
+        FILE_INTEGRITY_VIOLATION,
+        BACKUP_VIOLATION,
+        SPECTATOR_VIOLATION,
+        LAN_CHEAT_VIOLATION,
+        EVENT_CHAIN_VIOLATION
     }
     
     static {
@@ -83,6 +89,12 @@ public class ErrorLogger {
             case MERKLE_MISMATCH -> "LOGOS (Cryptographic Verification)";
             case CAUSALITY_LOOP -> "CHALCEDON (Divine Order)";
             case DEBUGGER_ALERT -> "KENOSIS (Self-Emptying Diagnostics)";
+            case DEATH_SEAL_VIOLATION -> "LOGOS (Immutable Death Record)";
+            case FILE_INTEGRITY_VIOLATION -> "LOGOS (Cryptographic Verification)";
+            case BACKUP_VIOLATION -> "KENOSIS (No Self-Preservation)";
+            case SPECTATOR_VIOLATION -> "CHALCEDON (Infrastructure Serves Users)";
+            case LAN_CHEAT_VIOLATION -> "CHALCEDON (Divine Order)";
+            case EVENT_CHAIN_VIOLATION -> "LOGOS (Hash Chain Integrity)";
         };
     }
     

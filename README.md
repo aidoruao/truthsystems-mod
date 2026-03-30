@@ -23,7 +23,8 @@ HIK is the fifth subsystem of TruthSystems — a cryptographic enforcement layer
 
 Config file: `config/truthsystems-hik.toml` (auto-generated on first run).
 
-See [docs/HIK_ARCHITECTURE.md](docs/HIK_ARCHITECTURE.md) for full architecture documentation.
+See [docs/HIK_ARCHITECTURE.md](docs/HIK_ARCHITECTURE.md) for full architecture documentation and
+[docs/MODPACK_COMPATIBILITY.md](docs/MODPACK_COMPATIBILITY.md) for the LAN-screen mixin compatibility notes.
 
 ### Subsystems
 

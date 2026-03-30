@@ -61,4 +61,15 @@ public class HikConfig {
         BUILDER.pop();
         SPEC = BUILDER.build();
     }
+
+    private HikConfig() {}
+
+    /**
+     * Explicit initialization hook used by the mod entrypoint.
+     * Forge loads the spec through {@code ModLoadingContext}; this method keeps
+     * HIK startup explicit and testable.
+     */
+    public static void load() {
+        // no-op; spec registration is handled in TruthSystems
+    }
 }

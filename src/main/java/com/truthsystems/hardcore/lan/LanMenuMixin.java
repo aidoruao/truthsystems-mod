@@ -23,8 +23,13 @@ import com.truthsystems.hardcore.HikConfig;
  * TODO (Phase 2): Also intercept the button click to show a warning message
  * explaining that cheats cannot be enabled on Hardcore worlds.
  */
-@Mixin(ShareToLanScreen.class)
+@Mixin(value = ShareToLanScreen.class, priority = 900)
 public class LanMenuMixin {
+
+    public static boolean matchesCheatToggleLabel(String label) {
+        String msg = label.toLowerCase();
+        return msg.contains("allow") && msg.contains("cheat");
+    }
 
     @Inject(method = "init", at = @At("RETURN"))
     private void onInit(CallbackInfo ci) {
@@ -36,11 +41,7 @@ public class LanMenuMixin {
         self.children().stream()
                 .filter(w -> w instanceof AbstractWidget)
                 .map(w -> (AbstractWidget) w)
-                .filter(btn -> {
-                    String msg = btn.getMessage().getString().toLowerCase();
-                    // Require both keywords to avoid disabling unrelated buttons
-                    return msg.contains("cheat") || (msg.contains("allow") && msg.contains("cheat"));
-                })
+                .filter(btn -> matchesCheatToggleLabel(btn.getMessage().getString()))
                 .forEach(btn -> btn.active = false);
     }
 }

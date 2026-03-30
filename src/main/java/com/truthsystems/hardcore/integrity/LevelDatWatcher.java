@@ -8,6 +8,8 @@
 package com.truthsystems.hardcore.integrity;
 
 import com.truthsystems.TruthSystems;
+import com.truthsystems.audit.CovenantVerifier;
+import com.truthsystems.audit.ErrorLogger;
 import com.truthsystems.hardcore.HikConfig;
 import com.truthsystems.hardcore.soulbind.DeathSealManager;
 import com.truthsystems.hardcore.soulbind.IntegrityFlag;
@@ -62,6 +64,14 @@ public class LevelDatWatcher {
             lastKnownHashes.put(worldName, hash);
         }
         WorldChecksumValidator.initOrValidate(worldDir, worldName);
+        if (!CovenantVerifier.verifyWorldFileIntegrity(worldDir, worldName)) {
+            ErrorLogger.logError(
+                    ErrorLogger.ErrorType.FILE_INTEGRITY_VIOLATION,
+                    TruthSystems.MODID,
+                    "world_file_integrity_verification_failed",
+                    "",
+                    "");
+        }
     }
 
     /**

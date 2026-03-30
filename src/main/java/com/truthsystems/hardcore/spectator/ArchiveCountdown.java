@@ -28,8 +28,10 @@ import java.util.Map;
 public class ArchiveCountdown {
 
     private static final Map<String, Long> countdownEndTimes = new HashMap<>();
-    /** Stores the world name associated with each countdown so the archive log is accurate. */
+    private static final int ARCHIVE_CHECK_INTERVAL_TICKS = 100;
+    /** Maps player UUID -> world name so archive logging stays tied to the correct world. */
     private static final Map<String, String> countdownWorldNames = new HashMap<>();
+    private static int tickCounter = 0;
 
     private ArchiveCountdown() {}
 
@@ -92,6 +94,9 @@ public class ArchiveCountdown {
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (!HikConfig.ENABLE_HIK.get()) return;
         if (event.phase != TickEvent.Phase.END) return;
+        tickCounter++;
+        if (tickCounter < ARCHIVE_CHECK_INTERVAL_TICKS) return;
+        tickCounter = 0;
 
         // Iterate over a snapshot to avoid ConcurrentModificationException
         for (String uuid : List.copyOf(countdownEndTimes.keySet())) {

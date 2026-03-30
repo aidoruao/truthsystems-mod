@@ -110,7 +110,9 @@ public class DeathLogEntry {
             return hex.toString();
         } catch (NoSuchAlgorithmException e) {
             // SHA-256 is always available on Java 17
-            throw new IllegalStateException("SHA-256 not available", e);
+            throw new IllegalStateException(
+                    "SHA-256 not available on runtime '" + System.getProperty("java.runtime.version") + "'",
+                    e);
         }
     }
 }

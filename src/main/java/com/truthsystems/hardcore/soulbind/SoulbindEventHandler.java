@@ -8,8 +8,12 @@
 package com.truthsystems.hardcore.soulbind;
 
 import com.truthsystems.TruthSystems;
+import com.truthsystems.audit.CovenantVerifier;
+import com.truthsystems.audit.ErrorLogger;
 import com.truthsystems.hardcore.HikConfig;
 import com.truthsystems.hardcore.backup.SessionIdManager;
+import com.truthsystems.hardcore.spectator.ArchiveCountdown;
+import com.truthsystems.hardcore.spectator.SpectatorLockHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -52,6 +56,17 @@ public class SoulbindEventHandler {
 
         DeathSealManager.sealDeath(worldDir, entry);
         DeathSealManager.setWorldIntegrity(worldName, IntegrityFlag.CLEAN);
+        SpectatorLockHandler.lockPlayer(uuid);
+        ArchiveCountdown.startCountdown(uuid, worldName);
+
+        if (!CovenantVerifier.verifyDeathSealIntegrity(worldDir, uuid, worldName)) {
+            ErrorLogger.logError(
+                    ErrorLogger.ErrorType.DEATH_SEAL_VIOLATION,
+                    TruthSystems.MODID,
+                    "death_seal_write_verification_failed",
+                    "",
+                    "");
+        }
 
         player.setGameMode(GameType.SPECTATOR);
     }
@@ -71,6 +86,7 @@ public class SoulbindEventHandler {
         String uuid = player.getStringUUID();
 
         if (DeathSealManager.isSealed(worldDir, uuid)) {
+            SpectatorLockHandler.lockPlayer(uuid);
             player.setGameMode(GameType.SPECTATOR);
             player.displayClientMessage(
                     Component.literal("[HIK] Your death is sealed. You are in spectator mode."), false);
